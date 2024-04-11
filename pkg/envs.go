@@ -34,6 +34,7 @@ func LoadEnvs() (config EnvVars, error error) {
 			}
 			return config, err
 		}
+		log.Info().Msg("env file load success.")
 	}
 
 	// Automatically read env variables
@@ -42,7 +43,7 @@ func LoadEnvs() (config EnvVars, error error) {
 	// Unmarshal config
 	viper.Unmarshal(&config)
 
-	log.Info().Msg("env Config loaded success.")
+	log.Info().Msg("env read success.")
 	// // Validate config
 	errs := Valtor.Validate(config)
 	if errs != nil {
