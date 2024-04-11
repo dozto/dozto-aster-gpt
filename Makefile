@@ -1,5 +1,5 @@
 build:
-	go build -o ./out/gpt -tags=viper_bind_struct ./main.go
+	go build -o ./out/gpt
 dev:
 	GO_ENV=dev air
 tidy:

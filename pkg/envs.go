@@ -3,8 +3,8 @@ package pkg
 import (
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 )
 
 type EnvVars struct {
@@ -15,41 +15,29 @@ type EnvVars struct {
 
 func LoadEnvs() (config EnvVars, error error) {
 	STAGE := os.Getenv("GO_ENV")
+
 	if STAGE == "" {
 		STAGE = "dev"
 	}
 
-	// Load config from file for non prod env
 	if STAGE != "prod" {
-		viper.AddConfigPath("./")
-		viper.SetConfigName(".env." + STAGE)
-
-		// Read config file
-		if err := viper.ReadInConfig(); err != nil {
-			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-				log.Fatal().Msg("config file not found.")
-				// log.Error("!! Config file not found.")
-			} else {
-				log.Fatal().Msg("error reading config file:" + err.Error())
-			}
+		err := godotenv.Load(".env." + STAGE)
+		if err != nil {
+			log.Fatal().Msg("fail load env file, set required envs in prod")
 			return config, err
 		}
-		log.Info().Msg("env file load success.")
 	}
 
-	// Automatically read env variables
-	viper.AutomaticEnv()
+	config.PORT = os.Getenv("PORT")
+	config.OPENAI_API_KEY = os.Getenv("OPENAI_API_KEY")
 
-	// Unmarshal config
-	viper.Unmarshal(&config)
+	log.Info().Any("config", config)
 
-	log.Info().Msg("env read success.")
-	// // Validate config
+	// Validate config
 	errs := Valtor.Validate(config)
 	if errs != nil {
 		log.Warn().Msg("error validating config:" + errs.Error())
 		return config, errs
 	}
-
 	return
 }
